@@ -1,7 +1,7 @@
 <?php if($table->paginate()): ?>
     <?= $this->Form->create(null, ['type' => 'get']); ?>                
 <?php endif; ?>
-<table class="striped responsive-table">
+<table class="table table-striped table-hover table-bordered">
     <thead>
         <tr>
             <?php foreach($table->getColumns() as $column => $options): ?>
@@ -19,7 +19,7 @@
         </tr>
         <?php if($table->paginate()): ?>
             
-            <tr style="background-color:#f6f6ff;">
+            <tr>
                 <?php foreach($table->getColumns() as $column => $options): ?>
                     <th style="vertical-align:top; border-radius:0;">
                         <?php if($table->getColumnFilterable($column)): ?>
@@ -31,7 +31,7 @@
                                 <div>
                                     <?= 
                                         $this->Form->input('filter.'.$column.'.from', [
-                                            'class' => $columnType == 'date'?'datepicker':'', 
+                                            'class' => $columnType == 'date'?'datepicker form-control input-sm':'form-control input-sm', 
                                             'type' => 'text', 
                                             'label' => 'Da',
                                             'value' => isset($this->request->query['filter'][$column]['from'])?
@@ -42,7 +42,7 @@
                                 <div>
                                     <?= 
                                         $this->Form->input('filter.'.$column.'.to', [
-                                            'class' => $columnType == 'date'?'datepicker':'', 
+                                            'class' => $columnType == 'date'?'datepicker form-control input-sm':' form-control input-sm', 
                                             'type' => 'text', 
                                             'label' => 'A',
                                             'value' => isset($this->request->query['filter'][$column]['to'])?
@@ -57,7 +57,7 @@
                                         'options' => $table->getColumnOptions($column),
                                         'label' => false,
                                         'empty' => true,
-                                        'class' => '',
+                                        'class' => 'form-control input-sm',
                                         'value' => isset($this->request->query['filter'][$column])?
                                                 $this->request->query['filter'][$column]:''
                                     ]);
@@ -66,6 +66,7 @@
                                 <?= 
                                     $this->Form->input('filter.'.$column, [
                                         'type' => 'text', 
+                                        'class' => 'form-control input-sm',
                                         'label' => false,
                                         'value' => isset($this->request->query['filter'][$column])?
                                                 $this->request->query['filter'][$column]:''
@@ -82,8 +83,10 @@
             </tr>
             <tr>
                 <th colspan="<?= count($table->getColumns()) + (int)$table->hasActions()?>">
-                    <button class="waves-effect waves-light btn indigo accent-2 right" type="submit" style="margin-left:10px;">Filtra</button>
-                    <?= $this->Html->link('Reset', [], ['class' => 'waves-effect waves-light btn indigo accent-2 right']) ?>
+                    <div class="btn-group pull-right">
+                        <button class="btn btn-primary btn-xs" type="submit">Filtra</button>
+                        <?= $this->Html->link('Reset', ['?' => ['reset' => 1]], ['class' => 'btn btn-xs']) ?>
+                    </div>
                 </th>
             </tr>
         <?php endif; ?>
@@ -97,31 +100,34 @@
                     </td>
                 <?php endforeach; ?>
                 <?php if($table->hasActions()): ?>
-                    <td>
-                        <a href="#" data-activates="line<?= $row->{$table->getEntityId()}?>Action" class="dropdown-button right">
-                            <i class="material-icons">more_vert</i>
-                        </a>
-                        <ul id='line<?= $row->{$table->getEntityId()}?>Action' class='dropdown-content'>
-                            <?php foreach($table->getActions() as $action => $options): ?>
-                                <li>
-                                    <?php if($table->getActionType($action) == 'get'): ?>
-                                        <?= 
-                                            $this->Html->link($table->getActionTitle($action), 
-                                                $table->getActionUrl($action, $row)
-                                            ); 
-                                        ?>
-                                    <?php else: ?>
-                                        <?php
-                                            echo $this->Form->postLink(
-                                                $table->getActionTitle($action), 
-                                                $table->getActionUrl($action, $row),
-                                                $table->getActionOptions($action) + ['block' => 'table_forms']
-                                            ); 
-                                        ?>
-                                    <?php endif; ?>
-                                </li>
-                            <?php endforeach; ?>
-                        </ul>
+                    <td class="text-center">
+                        <div class="dropdown">
+                            <a href="#" data-toggle="dropdown">
+                                <i class="fa fa-bars"></i>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="dLabel">
+                                <?php foreach($table->getActions() as $action => $options): ?>
+                                    <li>
+                                        <?php if($table->getActionType($action) == 'get'): ?>
+                                            <?= 
+                                                $this->Html->link($table->getActionTitle($action), 
+                                                    $table->getActionUrl($action, $row),
+                                                    ['class' => 'row-action-'.$action]
+                                                ); 
+                                            ?>
+                                        <?php else: ?>
+                                            <?php
+                                                echo $this->Form->postLink(
+                                                    $table->getActionTitle($action), 
+                                                    $table->getActionUrl($action, $row),
+                                                    $table->getActionOptions($action) + ['block' => 'table_forms', 'class' => 'row-action-'.$action]
+                                                ); 
+                                            ?>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        </div>
                     </td>
                 <?php endif; ?>
             </tr>

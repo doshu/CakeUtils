@@ -27,6 +27,7 @@
         protected $_entityId = 'id';
         protected $_paginate = true;
         protected $_options = [];
+        protected $_tableId = null;
         
         public function display($options = [])
         {
@@ -187,7 +188,6 @@
         }
         
         public function getFormattedColumn($column, $row, $view) {
-        
             $type = $this->getColumnType($column);
             $renderer = $this->getColumnRenderer($column);
             $value = \Cake\Utility\Hash::get($row, $this->getColumnIndex($column));
@@ -230,8 +230,23 @@
         
         public function prepareCollection() {
             $this->_prepareColumns();
-            if(isset($this->request->query['filter'])) {
-                foreach($this->request->query['filter'] as $column => $value) {
+            
+            if(isset($this->request->query['reset'])) {
+                $this->request->session()->delete('datatable.'.$this->getTableId().'.filter');
+                $this->request->session()->delete('datatable.'.$this->getTableId().'.pagination');
+                unset($this->request->query['reset']);
+            }
+            $filters = isset($this->request->query['filter'])?$this->request->query['filter']:
+                ($this->request->session()->check('datatable.'.$this->getTableId().'.filter')?
+                    $this->request->session()->read('datatable.'.$this->getTableId().'.filter'):null
+                );
+            
+            if($this->request->session()->check('datatable.'.$this->getTableId().'.pagination')) {
+                $this->request->query = $this->request->query + $this->request->session()->read('datatable.'.$this->getTableId().'.pagination');
+            }
+            
+            if($filters) {
+                foreach($filters as $column => $value) {
                     if($value !== '' && $value !== null) {
                         $type = $this->getColumnType($column);
                         $index = $this->getColumnFilterIndex($column);
@@ -258,7 +273,16 @@
                         }
                     }
                 }
+                $this->request->session()->write('datatable.'.$this->getTableId().'.filter', $filters);
             }
+            //saving pagination params
+            $paginationFilters = [];
+            foreach(['page', 'sort', 'direction'] as $pf) {
+                if(isset($this->request->query[$pf])) {
+                    $paginationFilters[$pf] = $this->request->query[$pf];
+                }
+            }
+            $this->request->session()->write('datatable.'.$this->getTableId().'.pagination', $paginationFilters);
         }
         
         public function paginate($paginate = null) {
@@ -296,6 +320,14 @@
         
         public function _formatText($value, $column) {
             return h($value);
+        }
+        
+        public function setTableId($id) {
+            $this->_tableId = $id;
+        }
+        
+        public function getTableId() {
+            return $this->_tableId?$this->_tableId:md5(get_class($this));
         }
 
     }
