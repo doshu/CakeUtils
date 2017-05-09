@@ -241,8 +241,15 @@
                     $this->request->session()->read('datatable.'.$this->getTableId().'.filter'):null
                 );
             
+            $isFiltering = isset($this->request->query['is_filtering']);
+            
             if($this->request->session()->check('datatable.'.$this->getTableId().'.pagination')) {
                 $this->request->query = $this->request->query + $this->request->session()->read('datatable.'.$this->getTableId().'.pagination');
+            }
+            
+            if($isFiltering) {
+                unset($this->request->query['page']);
+                unset($this->request->query['is_filtering']);
             }
             
             if($filters) {

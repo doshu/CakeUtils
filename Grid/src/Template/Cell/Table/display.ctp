@@ -1,5 +1,6 @@
 <?php if($table->paginate()): ?>
-    <?= $this->Form->create(null, ['type' => 'get']); ?>                
+    <?= $this->Form->create(null, ['type' => 'get']); ?>        
+    <?= $this->Form->hidden('is_filtering', ['value' => 1]); ?>           
 <?php endif; ?>
 <table class="table table-striped table-hover table-bordered">
     <thead>
